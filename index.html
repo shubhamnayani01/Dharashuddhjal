@@ -215,8 +215,7 @@ button:hover{
 /* ---------------- ADDRESS ---------------- */
 
 .address-box{
-  max-width:500px;
-  margin:0 auto;
+  width:100%;
   background:#ffffff;
   padding:30px;
   border-radius:18px;
@@ -231,6 +230,13 @@ button:hover{
   transition:
     opacity 0.8s ease,
     transform 0.8s ease;
+}
+.address-grid{
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 30px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 /* trigger animation when section is visible */
@@ -298,7 +304,37 @@ footer{
   text-align:center;
   padding:30px;
 }
+/* ---------------- BRANCH ---------------*/
+.branch-box{
+  margin-top: 15px;
+}
 
+.branch-box label{
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.branch-box select,
+.branch-box button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.address-box button{
+  background: #25d366;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.branch-box button:hover{
+  background: #1ebe5d;
+}
 </style>
 </head>
 
@@ -312,8 +348,8 @@ footer{
   <img src="image.jpeg" alt="Dhara Shuddh Jal Logo">
 </div>
 
-  <h1>Dhara Shuddh Jal</h1>
-  <p>Pure Drinking Water Supply • Mathal</p>
+<h1>Dhara Shuddh Jal</h1>
+<p>Pure Drinking Water Supply • Mathal</p>
 </section>
 
 <div class="trust">
@@ -336,19 +372,26 @@ footer{
 <!-- ORDER -->
 <section class="section order">
   <h2>Place Your Order</h2>
-
+  
   <form onsubmit="orderNow(event)">
     <input id="name" placeholder="Your Name" required>
     <input id="phone" placeholder="Phone Number" pattern="[0-9]{10}" required>
     <input id="address" placeholder="Delivery Address" required>
     <input type="number" id="qty" placeholder="Number of Bottles" min="1" required>
-
     <select id="delivery" onchange="updateTotal()" required>
       <option value="">Delivery Type</option>
-      <option value="pickup">Pickup - ₹20 per bottle</option>
+      <option value="pickup">In-Store Filling - ₹20 per bottle</option>
+      <option value="store">In-Store collection - ₹25 per bottle</option>   
       <option value="home">Home Delivery - ₹30 per bottle</option>
     </select>
-
+    <div class="branch-box">
+      <label for="branch">Select Branch</label>
+      <select id="branch" required>
+        <option value="">Select Branch</option>
+        <option value="ugedi">Ugedi</option>
+        <option value="mathal">Mathal</option>
+      </select>
+    </div>
     <div class="total">Total: ₹<span id="total">0</span></div>
     <button type="submit">Order via WhatsApp</button>
   </form>
@@ -357,13 +400,19 @@ footer{
 <!-- SHOP ADDRESS -->
 <section class="section">
   <h2>Shop Address</h2>
-
+  <div class="address-grid">
   <div class="address-box">
-    <p class="address-title">📍 Dhara Shuddh Jal</p>
+    <p class="address-title">📍 Mathal Branch</p>
     <p>Patel Faliyu, Junavas</p>
     <p>Mathal, Nakhatrana</p>
     <p>Gujarat - 370605</p>
-
+  </div>
+  <div class="address-box">
+    <p class="address-title">📍 Ugedi Branch</p>
+    <p>Ashapura chok</p>
+    <p>Ugedi, Nakhatrana</p>
+    <p>Gujarat - 370605</p>
+  </div>
   </div>
 </section>
 
@@ -414,21 +463,41 @@ function orderNow(e){
   const address = document.getElementById("address").value;
   const qty = document.getElementById("qty").value;
   const delivery = document.getElementById("delivery").value;
-  const total = qty * (delivery==="home"?30:20);
+  const branch = document.getElementById("branch").value;
+
+  if (!branch) {
+    alert("Please select branch");
+    return;
+  }
+
+  // PRICE LOGIC
+  let price = 0;
+  if (delivery === "pickup") price = 20;
+  else if (delivery === "store") price = 25;
+  else if (delivery === "home") price = 30;
+
+  const total = qty * price;
+
+  // BRANCH → WHATSAPP NUMBER
+  let WHATSAPP_NUMBER = "";
+  if (branch === "ugedi") {
+    WHATSAPP_NUMBER = "917022770912"; // Neel
+  } else if (branch === "mathal") {
+    WHATSAPP_NUMBER = "919274218928"; // Dev
+  }
 
   const msg =
 `New Water Order 🚰
+Branch: ${branch.toUpperCase()}
 Name: ${name}
 Phone: ${phone}
 Address: ${address}
 Bottles: ${qty}
-Delivery: ${delivery}
+Service: ${delivery}
 Total: ₹${total}`;
 
-  const DEV_WHATSAPP_NUMBER = "919274218928"; // 🔴 Dev ka WhatsApp number
-
   window.open(
-    `https://wa.me/${DEV_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,
+    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,
     "_blank"
   );
 }
@@ -442,6 +511,7 @@ window.addEventListener("scroll",()=>{
     }
   });
 });
+
 </script>
 
 </body>
